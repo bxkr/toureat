@@ -113,7 +113,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-              const VerticalDivider(),
+              const VerticalDivider(
+                width: 0,
+                endIndent: 10,
+              ),
               _currentPage
             ],
           ),
