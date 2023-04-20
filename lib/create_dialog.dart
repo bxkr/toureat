@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CreatePage extends StatelessWidget {
-  CreatePage({
+class CreateDialog extends StatelessWidget {
+  CreateDialog({
     super.key,
     required this.onClose,
     required this.onDone

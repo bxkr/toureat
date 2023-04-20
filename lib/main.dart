@@ -1,7 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:toureat/create_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toureat/create_dialog.dart';
 import 'package:toureat/library_page.dart';
 import 'package:toureat/settings_page.dart';
 import 'package:window_size/window_size.dart';
@@ -87,7 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     context: context,
                     builder: (BuildContext mainDialogContext) =>
                         Dialog.fullscreen(
-                            child: CreatePage(
+                            child: CreateDialog(
                       onClose: () {
                         showDialog(
                             context: context,
