@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:toureat/create_page.dart';
 import 'package:toureat/library_page.dart';
+import 'package:toureat/settings_page.dart';
+import 'package:window_size/window_size.dart';
+
+import 'app_properties_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  Widget _currentPage = const LibraryPage();
+  late Widget _currentPage;
   final List<NavigationRailDestination> _destinations = const [
     NavigationRailDestination(
       icon: Icon(Icons.library_books_outlined),
@@ -53,9 +57,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    onDestinationChanged(_selectedIndex);
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: StreamBuilder<String>(
+              stream: appBloc.titleStream,
+              initialData: widget.title,
+              builder: (context, snapshot) {
+                return Text(snapshot.data ?? widget.title);
+              }),
         ),
         body: SafeArea(
           child: Row(
@@ -116,8 +126,14 @@ class _MyHomePageState extends State<MyHomePage> {
       case 0:
         // ignore: prefer_const_constructors
         _currentPage = LibraryPage();
+        appBloc.updateTitle('Библиотека');
+        break;
+      case 2:
+        _currentPage = const SettingsPage();
+        appBloc.updateTitle('Настройки');
         break;
       default:
+        appBloc.updateTitle(widget.title);
         _currentPage = Container();
     }
   }
