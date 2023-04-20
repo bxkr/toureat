@@ -90,21 +90,28 @@ class _MyHomePageState extends State<MyHomePage> {
                         Dialog.fullscreen(
                             child: CreateDialog(
                       onClose: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                                  title: const Text('Вы уверены?'),
-                                  content: const Text(
-                                      'Эти изменения не будут сохранены'),
-                                  actions: [
-                                    OutlinedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.pop(mainDialogContext);
-                                        },
-                                        child: const Text('Да, удалить'))
-                                  ],
-                                ));
+                        SharedPreferences.getInstance().then((prefs) {
+                          if (prefs.getBool('ask_for_cancel_creation') ??
+                              true) {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Вы уверены?'),
+                                      content: const Text(
+                                          'Эти изменения не будут сохранены'),
+                                      actions: [
+                                        OutlinedButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                              Navigator.pop(mainDialogContext);
+                                            },
+                                            child: const Text('Да, удалить'))
+                                      ],
+                                    ));
+                          } else {
+                            Navigator.pop(mainDialogContext);
+                          }
+                        });
                       },
                       onDone: () {
                         setState(() {
