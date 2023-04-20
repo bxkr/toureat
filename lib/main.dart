@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:toureat/create_page.dart';
 import 'package:toureat/library_page.dart';
@@ -7,6 +9,12 @@ import 'package:window_size/window_size.dart';
 import 'app_properties_bloc.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows) {
+    setWindowTitle('Раскладка питания');
+    setWindowMinSize(const Size(1200, 600));
+    setWindowMaxSize(const Size(3600, 1200));
+  }
   runApp(const MyApp());
 }
 
