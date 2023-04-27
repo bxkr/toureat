@@ -1,14 +1,8 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toureat/create_dialog_steps/general.dart';
 
 class CreateDialog extends StatelessWidget {
-  CreateDialog({
-    super.key,
-    required this.onClose,
-    required this.onDone
-  });
+  CreateDialog({super.key, required this.onClose, required this.onDone});
 
   final void Function() onClose;
   final void Function() onDone;
@@ -18,31 +12,21 @@ class CreateDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            labelText: 'data',
-          ),
-          controller: controller,
-          onSubmitted: (_) => _onDone(),
-        ),
-      ),
+          padding: const EdgeInsets.all(8.0),
+          child: Stepper(
+            type: StepperType.horizontal,
+            elevation: 0,
+            steps: const [
+              Step(title: Text('О походе'), content: CreateGeneral())
+            ],
+          )),
       appBar: AppBar(
         title: const Text('Создание раскладки'),
         leading: IconButton(onPressed: onClose, icon: const Icon(Icons.close)),
-        actions: [
-          IconButton(onPressed: () => _onDone(), icon: const Icon(Icons.done))
+        actions: const [
+          IconButton(onPressed: null, icon: Icon(Icons.done))
         ],
       ),
     );
-  }
-
-  void _onDone() {
-    SharedPreferences.getInstance().then((SharedPreferences prefs) {
-      String? savedData = prefs.getString('saved_data');
-      prefs.setString('saved_data', jsonEncode((savedData != null ? jsonDecode(savedData) : []) + [controller.text]));
-      onDone();
-    });
   }
 }
