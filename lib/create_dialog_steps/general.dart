@@ -9,8 +9,6 @@ class CreateGeneral extends StatefulWidget {
 }
 
 class _CreateGeneralState extends State<CreateGeneral> {
-  bool _hikeIsNotValidated = false;
-  String? _currentHikeText;
   final GlobalKey _formKey = GlobalKey();
 
   @override
@@ -70,6 +68,8 @@ class _CreateGeneralState extends State<CreateGeneral> {
   }
 
   Flexible _createAutocompleteField(String label) {
+    TextEditingController? myTextEditingController;
+    FocusNode? myFocusNode;
     return Flexible(
       child: Autocomplete<Hike>(
         fieldViewBuilder: (BuildContext context,
@@ -78,22 +78,21 @@ class _CreateGeneralState extends State<CreateGeneral> {
             VoidCallback onFieldSubmitted) {
           focusNode.addListener(() {
             if (!focusNode.hasFocus) {
-              if (!Hike.values.map((e) => e.name).contains(textEditingController.text)) {
+              if (!Hike.values
+                  .map((e) => e.name)
+                  .contains(textEditingController.text)) {
                 setState(() {
                   textEditingController.text = '';
                 });
               }
             }
           });
+          myFocusNode = focusNode;
+          myTextEditingController = textEditingController;
           return TextFormField(
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelText: label,
-              errorText: (() {
-                if (_hikeIsNotValidated) {
-                  return 'Выберите из списка';
-                }
-              })(),
             ),
             controller: textEditingController,
             focusNode: focusNode,
@@ -102,7 +101,8 @@ class _CreateGeneralState extends State<CreateGeneral> {
         },
         displayStringForOption: (Hike hike) => hike.name,
         optionsBuilder: (TextEditingValue textEditingValue) {
-          if (textEditingValue.text == '') {
+          if (textEditingValue.text == '' ||
+              Hike.values.map((e) => e.name).contains(textEditingValue.text)) {
             return Hike.values;
           }
           return Hike.values.where((Hike option) {
@@ -111,12 +111,33 @@ class _CreateGeneralState extends State<CreateGeneral> {
                 .contains(textEditingValue.text.toLowerCase());
           });
         },
-        initialValue: TextEditingValue(text: (_currentHikeText) ?? ''),
-        onSelected: (Hike selection) {
-          _currentHikeText = selection.name;
-          setState(() {
-            _hikeIsNotValidated = false;
-          });
+        optionsViewBuilder: (
+          BuildContext context,
+          AutocompleteOnSelected<Hike> onSelected,
+          Iterable<Hike> options,
+        ) {
+          return ListView.builder(
+              itemCount: options.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Row(
+                  children: [
+                    SizedBox(
+                      width: 512,
+                      child: Material(
+                        elevation: 8,
+                        child: ListTile(
+                          title: Text(options.elementAt(index).name),
+                          onTap: () {
+                            myTextEditingController?.text =
+                                options.elementAt(index).name;
+                            myFocusNode?.unfocus();
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              });
         },
       ),
     );
