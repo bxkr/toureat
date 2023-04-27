@@ -38,7 +38,7 @@ class _CreateDialogState extends State<CreateDialog> {
                 onStepContinue = null;
               }
                 return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.only(left: 8, top: 24, right: 8, bottom: 8),
                   child: Row(
                     children: <Widget>[
                       (onStepContinue != null) ? OutlinedButton(
@@ -69,7 +69,8 @@ class _CreateDialogState extends State<CreateDialog> {
               setState(() => _step++);
             },
             onStepTapped: (int index) => setState(() => _step = index),
-          )),
+          ),
+      ),
       appBar: AppBar(
         title: const Text('Создание раскладки'),
         leading: IconButton(
