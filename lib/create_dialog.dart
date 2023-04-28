@@ -15,61 +15,83 @@ class _CreateDialogState extends State<CreateDialog> {
   final controller = TextEditingController();
 
   int _step = 0;
-  final List<Step> _steps = [
-    const Step(title: Text('О походе'), content: CreateGeneral()),
-    Step(title: const Text('...1'), content: Container()),
-    Step(title: const Text('...2'), content: Container()),
-  ];
+  bool _isGeneralValidated = false;
+  List<Step> _steps = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _steps = [
+      Step(
+        title: const Text('О походе'),
+        content: CreateGeneral(() {
+          setState(() {
+            _isGeneralValidated = true;
+          });
+        }, () {
+          setState(() {
+            _isGeneralValidated = false;
+          });
+        }),
+      ),
+      Step(title: const Text('...1'), content: Container()),
+      Step(title: const Text('...2'), content: Container()),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Stepper(
-            controlsBuilder:
-                (BuildContext context, ControlsDetails controlsDetails) {
-              Function()? onStepContinue = controlsDetails.onStepContinue;
-              Function()? onStepCancel = controlsDetails.onStepCancel;
-              if (_step == 0) {
-                onStepCancel = null;
-              }
-              if (_step == _steps.length-1) {
-                onStepContinue = null;
-              }
-                return Padding(
-                  padding: const EdgeInsets.only(left: 8, top: 24, right: 8, bottom: 8),
-                  child: Row(
-                    children: <Widget>[
-                      (onStepContinue != null) ? OutlinedButton(
-                        onPressed: onStepContinue,
-                        child: const Text('Дальше'),
-                      ) : Container(),
-                      const SizedBox(width: 8),
-                      (onStepCancel != null) ? OutlinedButton(
-                        onPressed: onStepCancel,
-                        child: const Text('Назад'),
-                      ) : Container(),
-                    ],
-                  ),
-                );
-            },
-            currentStep: _step,
-            type: StepperType.vertical,
-            elevation: 0,
-            steps: _steps,
-            onStepCancel: () {
-              if (_step > 0) {
-                setState(() {
-                  _step--;
-                });
-              }
-            },
-            onStepContinue: () {
-              setState(() => _step++);
-            },
-            onStepTapped: (int index) => setState(() => _step = index),
-          ),
+        padding: const EdgeInsets.all(8.0),
+        child: Stepper(
+          controlsBuilder:
+              (BuildContext context, ControlsDetails controlsDetails) {
+            Function()? onStepContinue = controlsDetails.onStepContinue;
+            Function()? onStepCancel = controlsDetails.onStepCancel;
+            if (_step == 0) {
+              onStepCancel = null;
+            }
+            if (_step == _steps.length - 1 || (_step == 0 && !_isGeneralValidated)) {
+              onStepContinue = null;
+            }
+            return Padding(
+              padding:
+                  const EdgeInsets.only(left: 8, top: 24, right: 8, bottom: 8),
+              child: Row(
+                children: <Widget>[
+                  (onStepContinue != null)
+                      ? OutlinedButton(
+                          onPressed: onStepContinue,
+                          child: const Text('Дальше'),
+                        )
+                      : Container(),
+                  const SizedBox(width: 8),
+                  (onStepCancel != null)
+                      ? OutlinedButton(
+                          onPressed: onStepCancel,
+                          child: const Text('Назад'),
+                        )
+                      : Container(),
+                ],
+              ),
+            );
+          },
+          currentStep: _step,
+          type: StepperType.vertical,
+          elevation: 0,
+          steps: _steps,
+          onStepCancel: () {
+            if (_step > 0) {
+              setState(() {
+                _step--;
+              });
+            }
+          },
+          onStepContinue: () {
+            setState(() => _step++);
+          },
+        ),
       ),
       appBar: AppBar(
         title: const Text('Создание раскладки'),

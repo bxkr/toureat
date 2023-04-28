@@ -2,14 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class CreateGeneral extends StatefulWidget {
-  const CreateGeneral({super.key});
+  const CreateGeneral(this.approve, this.disapprove, {super.key});
+
+  final void Function() approve;
+  final void Function() disapprove;
 
   @override
-  State<CreateGeneral> createState() => _CreateGeneralState();
+  State<CreateGeneral> createState() =>
+      // ignore: no_logic_in_create_state
+      _CreateGeneralState(approve, disapprove);
 }
 
 class _CreateGeneralState extends State<CreateGeneral> {
-  final GlobalKey _formKey = GlobalKey();
+  _CreateGeneralState(this.approve, this.disapprove);
+
+  final void Function() approve;
+  final void Function() disapprove;
+  final _formKey = GlobalKey<FormState>();
+  final List<GlobalKey<FormFieldState>> _formFieldKeys = [];
 
   @override
   Widget build(BuildContext context) {
@@ -51,23 +61,37 @@ class _CreateGeneralState extends State<CreateGeneral> {
   }
 
   Flexible _createDigitsField(String label, {String suffixText = ''}) {
+    final currentFormFieldKey = GlobalKey<FormFieldState>();
+    _formFieldKeys.add(currentFormFieldKey);
     return Flexible(
       child: TextFormField(
+        key: currentFormFieldKey,
+        validator: (String? value) {
+          if (value == null || value.isEmpty) {
+            return 'Должно быть заполнено'; // it does not appear anywhere
+          }
+          return null;
+        },
         decoration: InputDecoration(
             border: const OutlineInputBorder(),
             labelText: label,
-            counter: Container(),
+            counterText: ' ',
             suffixText: suffixText),
         maxLength: 2,
         keyboardType: const TextInputType.numberWithOptions(),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.digitsOnly
         ],
+        onChanged: (String value) {
+          validateAllAndApprove();
+        },
       ),
     );
   }
 
   Flexible _createAutocompleteField(String label) {
+    final currentFormFieldKey = GlobalKey<FormFieldState>();
+    _formFieldKeys.add(currentFormFieldKey);
     TextEditingController? myTextEditingController;
     FocusNode? myFocusNode;
     return Flexible(
@@ -76,27 +100,30 @@ class _CreateGeneralState extends State<CreateGeneral> {
             TextEditingController textEditingController,
             FocusNode focusNode,
             VoidCallback onFieldSubmitted) {
-          focusNode.addListener(() {
-            if (!focusNode.hasFocus) {
-              if (!Hike.values
-                  .map((e) => e.name)
-                  .contains(textEditingController.text)) {
-                setState(() {
-                  textEditingController.text = '';
-                });
-              }
-            }
-          });
-          myFocusNode = focusNode;
           myTextEditingController = textEditingController;
+          myFocusNode = focusNode;
           return TextFormField(
+            key: currentFormFieldKey,
+            validator: (String? value) {
+              if (value == null ||
+                  value.isEmpty ||
+                  !Hike.values.map((e) => e.name).contains(value)) {
+                return 'Должно быть заполнено'; // it does not appear anywhere
+              }
+              return null;
+            },
             decoration: InputDecoration(
               border: const OutlineInputBorder(),
               labelText: label,
             ),
             controller: textEditingController,
             focusNode: focusNode,
-            onFieldSubmitted: (String value) => onFieldSubmitted(),
+            onFieldSubmitted: (String value) {
+              validateAllAndApprove();
+            },
+            onChanged: (String value) {
+              validateAllAndApprove();
+            },
           );
         },
         displayStringForOption: (Hike hike) => hike.name,
@@ -130,6 +157,7 @@ class _CreateGeneralState extends State<CreateGeneral> {
                           onTap: () {
                             myTextEditingController?.text =
                                 options.elementAt(index).name;
+                            validateAllAndApprove();
                             myFocusNode?.unfocus();
                           },
                         ),
@@ -141,6 +169,20 @@ class _CreateGeneralState extends State<CreateGeneral> {
         },
       ),
     );
+  }
+
+  void validateAllAndApprove() {
+    if (_formFieldKeys
+        .map((e) => e.currentState != null
+        ? e.currentState!.isValid
+        : null)
+        .where((element) =>
+    element == null || element == false)
+        .isEmpty) {
+      approve();
+    } else {
+      disapprove();
+    }
   }
 }
 
