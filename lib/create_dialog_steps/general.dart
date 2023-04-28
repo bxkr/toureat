@@ -9,15 +9,11 @@ class CreateGeneral extends StatefulWidget {
 
   @override
   State<CreateGeneral> createState() =>
-      // ignore: no_logic_in_create_state
-      _CreateGeneralState(approve, disapprove);
+      _CreateGeneralState();
 }
 
 class _CreateGeneralState extends State<CreateGeneral> {
-  _CreateGeneralState(this.approve, this.disapprove);
-
-  final void Function() approve;
-  final void Function() disapprove;
+  _CreateGeneralState();
   final _formKey = GlobalKey<FormState>();
   final List<GlobalKey<FormFieldState>> _formFieldKeys = [];
 
@@ -179,9 +175,9 @@ class _CreateGeneralState extends State<CreateGeneral> {
         .where((element) =>
     element == null || element == false)
         .isEmpty) {
-      approve();
+      widget.approve();
     } else {
-      disapprove();
+      widget.disapprove();
     }
   }
 }
